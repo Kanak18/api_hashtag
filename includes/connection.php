@@ -15,7 +15,7 @@ $DB_Username = "hashtag9_api";
 $DB_Password = ".BHd9L(YGn-y";
 
 
-$SITE_URL = "http://api.hashtagwebhub.com/";
+$SITE_URL = "https://api.hashtagwebhub.com/";
 define("ROOT_SITE_URL", $SITE_URL);
 
 
