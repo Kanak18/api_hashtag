@@ -1,0 +1,18 @@
+@media only screen and (max-width:1050px){
+	.container{width:960px;}
+}
+@media only screen and (max-width:980px){
+	.container{width:740px;}
+}
+@media only screen and (max-width:767px){
+	.container{width:90%;}
+	.signinForm .siginRegistration > li{ list-style-type:none; margin-bottom:25px; width:100%; float:left; display:inline; padding:0px 0px 0px 0px;}
+	.signinForm .siginRegistration > li:nth-child(2n){padding:0px 0px 0px 0px;}
+	.logo a{ display:block;}
+	header img{ max-width:100%;}
+}
+/*
+@media only screen and (max-width:460px){
+	.container{width:1050px;}
+}
+*/
