@@ -276,33 +276,34 @@ function ListColumnValue($tbl, $baseField, $where, $seprator, $dispFild, $baseTb
 
 ///// SITE FUNCTIONS ///////////////
 function setGPC($val, $act) {
-    # use this function to display/insert values coming from Get/Post/Cookie.
-    # parameter "act" should have a value "display" if it is being used for displaying value. 
-    # in case of database update/insert the "act" can be left blank.
+    // Trim the value to remove extra whitespace
+    $val = trim($val);
 
-    if (!get_magic_quotes_gpc())
-        $val = addslashes(trim($val));
+    // Escape the value to prepare for database insertion
+    $val = addslashes($val);
 
-    if ($act == "display")
+    // If the action is "display", unescape the value
+    if ($act == "display") {
         $val = stripslashes($val);
+    }
 
     return $val;
 }
 
 function setDB($val, $act) {
-    # use this function to display/insert values coming from sources other than Get/Post/Cookie. i.e. database/file etc.
-    # parameter "act" should have a value "display" if it is being used for displaying value. 
-    # in case of database update/insert the "act" can be left blank.
+    // Trim the value to remove extra whitespace
+    $val = trim($val);
 
-    if (!get_magic_quotes_runtime())
-        $val = addslashes(trim($val));
+    // Escape the value to prepare for database insertion
+    $val = addslashes($val);
 
-    if ($act == "display")
+    // If the action is "display", unescape the value
+    if ($act == "display") {
         $val = stripslashes($val);
+    }
 
     return $val;
 }
-
 function populateFields($src, $txtFlds, $numFlds, $myRow) {
     $myFlds = Array();
 
