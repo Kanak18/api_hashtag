@@ -19,6 +19,7 @@ jobs:
         host: ${{ vars.PRODUCTION_HOST }}
         username: ${{ vars.PRODUCTION_USER }}
         key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: 65002
         script: |
           echo "🚀 Starting deployment..."
 
