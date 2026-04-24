@@ -38,13 +38,18 @@ while($rw_keys=mysqli_fetch_array($rs_keys))
 						"en" => $Link_Title
 					];
 				
-					
+					// Audio URL to be sent
+                    $audioUrl = "custom_sound"; // Replace with your actual audio file URL
+
 					
 					$fields = [
 						'app_id' => $appId,
 						'included_segments' => ['All'], // Target all users
 						'headings' => $headings,
-						'contents' => $content
+						'contents' => $content,
+						'data' => [
+                            'audio_url' => $audioUrl // Pass the audio URL in additional data
+                        ]
 					];
 				
 					$fieldsJson = json_encode($fields);

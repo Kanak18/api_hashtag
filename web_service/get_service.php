@@ -48,7 +48,7 @@ function get_rewards($app_id)
     global $arrResult;
 	extract($_REQUEST);
 
-	$linkQuery = "SELECT c.id,link_title as title,link_desc as link,CONCAT(u.first_name,' ',u.last_name) as author_name,u.avatar as avatar,date_added as post_date,link_source as post_desc from coin_link c LEFT JOIN user u ON c.user_id=u.id order by c.id desc";
+	$linkQuery = "SELECT c.id,link_title as title,link_desc as link,CONCAT(u.first_name,' ',u.last_name) as author_name,u.avatar as avatar,date_added as post_date,link_source as post_desc from coin_link c LEFT JOIN user u ON c.user_id=u.id order by c.id desc limit 0,50";
 	
 	
 	$rsLinkQuery = mysqli_query($con,$linkQuery) or die ("could not found link deatil".mysql_error());
@@ -64,7 +64,7 @@ function get_rewards($app_id)
 		$arrTemp[$rowCounter]['author_name'] = $rw1["author_name"];		
 		$arrTemp[$rowCounter]['post_date'] = date("F j, Y, g:i a",strtotime($rw1["post_date"])); // $rw1["post_date"];				
 		$arrTemp[$rowCounter]['post_desc'] = $rw1["post_desc"];				
-		$arrTemp[$rowCounter]['author_pic'] = "http://api.hashtagwebhub.com/users/".$rw1["avatar"];				
+		$arrTemp[$rowCounter]['author_pic'] = "https://api.hashtagwebhub.com/users/".$rw1["avatar"];				
 		$rowCounter ++;
 	}
 
@@ -73,20 +73,35 @@ function get_rewards($app_id)
 		//https://spinforcoinmasterdailylink.blogspot.com/2020/04/click-to-download-application.html
 	
 	
-	/*if($app_id==2000)
+	if($app_id==2002 or $app_id==2003 or $app_id==2005)
 	{
 		$arrTemp = array();
 		$arrTemp[0]['id'] = 0;
-		$arrTemp[0]['title'] = "Data Availabe Soon";
-		$arrTemp[0]['link'] = "";
+		$arrTemp[0]['title'] = "Unlimited Spins & Coins – Free Daily Rewards";
+		$arrTemp[0]['link'] = "https://play.google.com/store/apps/details?id=com.coinmasterspinlink.cmspinmaster";
 		$arrTemp[0]['author_name'] = "Administrator.";		
 		$arrTemp[0]['post_date'] = date("Y-m-d H:i");
-		$arrTemp[0]['post_desc'] = "There were no current post available. it will be available soon";		
+		$arrTemp[0]['post_desc'] = "Claim free spins and coins daily with working spin links. Download now!";		
 		$arrTemp[0]['author_pic'] = "";		
 			
 		$rowCounter ++;
 
-	}*/
+	}
+	
+	if($app_id==20006 or $app_id==20504)
+	{
+		$arrTemp = array();
+		$arrTemp[0]['id'] = 0;
+		$arrTemp[0]['title'] = "Please wait for new post";
+		$arrTemp[0]['link'] = "";
+		$arrTemp[0]['author_name'] = "Administrator.";		
+		$arrTemp[0]['post_date'] = date("Y-m-d H:i");
+		$arrTemp[0]['post_desc'] = "Claim free spins and coins daily with working spin links!";		
+		$arrTemp[0]['author_pic'] = "";		
+			
+		$rowCounter ++;
+
+	}
 	
 	
 	if(count($arrTemp) > 0)
@@ -159,6 +174,7 @@ function get_settings($app_id)
             "cancel_update_status" => $rwQuery['cancel_update_status'],
 
             "app_privacy_policy" => $rwQuery['privacy_policy'],
+            "app_faq" => $rwQuery['app_faq'],
          );
 
 

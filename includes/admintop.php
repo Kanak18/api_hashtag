@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 $urlval = $_SERVER['PHP_SELF'];
 $ex = explode("/", $urlval);
 $filename = $ex[count($ex) - 1];
