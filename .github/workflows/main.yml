@@ -1,4 +1,4 @@
-name: Deploy PHP App to Production (main)
+name: Deploy PHP App to Production (main api)
 
 on:
   push:
