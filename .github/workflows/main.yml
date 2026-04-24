@@ -1,0 +1,118 @@
+name: Deploy Laravel App to Production (main)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, bcmath, curl, xml, ctype, fileinfo, tokenizer, openssl, pdo, pdo_mysql
+        ini-values: post_max_size=256M, upload_max_filesize=256M    
+
+    - name: Set HOME environment variable
+      run: echo "HOME=/home/ubuntu" >> $GITHUB_ENV
+
+    - name: Set Composer HOME environment variable
+      run: echo "COMPOSER_HOME=/home/ubuntu/.config/composer" >> $GITHUB_ENV
+
+    - name: Clear Composer Cache
+      run: composer clear-cache
+
+    - name: Install Composer Dependencies (No Scripts)
+      run: composer install --no-scripts --no-interaction --no-progress --prefer-dist
+
+    - name: Install Laravel Pint
+      run: composer require laravel/pint --dev --no-scripts
+
+    - name: Apply Pint Auto-Fixes
+      run: ./vendor/bin/pint || true
+
+    - name: Install Rector
+      run: composer require --dev rector/rector --no-scripts
+
+    - name: Apply Rector Auto-Fixes
+      run: ./vendor/bin/rector process --clear-cache || true
+
+    - name: Install Larastan
+      run: composer require --dev larastan/larastan:^3.6 --no-scripts
+
+    - name: Run PHPStan (Static Analysis)
+      run: ./vendor/bin/phpstan analyse --no-progress --configuration=phpstan.neon || true
+
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ vars.PRODUCTION_HOST }}
+        username: ${{ vars.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        script: |
+          echo "Starting deployment on remote server..."
+          cd /var/www/html/skill360 || exit
+
+          echo "Allowing Git to work in this directory..."
+          git config --global --add safe.directory /var/www/html/skill360
+
+          # Save composer.lock hash before pulling changes
+          if [ -f composer.lock ]; then
+            LOCK_HASH_BEFORE=$(md5sum composer.lock | awk '{ print $1 }')
+          else
+            LOCK_HASH_BEFORE=""
+          fi
+
+          # Fix permissions
+          sudo chown -R $USER:$USER storage bootstrap
+
+          # Abort rebase if in progress
+          if [ -d ".git/rebase-merge" ]; then
+            git rebase --abort || rm -rf .git/rebase-merge
+          fi
+
+          # Discard any local changes
+          git reset --hard
+          git clean -fd
+
+          echo "Pulling latest code from main branch..."
+          git pull origin main
+
+          # Check composer.lock change
+          if [ -f composer.lock ]; then
+            LOCK_HASH_AFTER=$(md5sum composer.lock | awk '{ print $1 }')
+          else
+            LOCK_HASH_AFTER=""
+          fi
+
+          if [ "$LOCK_HASH_BEFORE" != "$LOCK_HASH_AFTER" ]; then
+              echo "composer.lock changed, running composer install..."
+              composer install --no-dev --optimize-autoloader --no-scripts
+          else
+              echo "No composer.lock changes, skipping composer install."
+          fi
+
+          # Set permissions
+          sudo chmod -R 775 storage bootstrap/cache
+          sudo chown -R www-data:www-data storage bootstrap/cache
+
+          # Run migrations
+          php artisan migrate --force
+
+          # Clear caches
+          php artisan cache:clear
+          php artisan config:clear
+          php artisan view:clear
+          php artisan route:clear
+
+          # Restart Supervisor workers
+          sudo supervisorctl reload || echo "Supervisor not installed or no permission"
+
+          echo "✅ Deployment completed successfully!"
