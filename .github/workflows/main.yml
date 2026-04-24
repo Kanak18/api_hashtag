@@ -23,13 +23,13 @@ jobs:
         script: |
           echo "🚀 Starting deployment..."
 
-          cd /domains/hashtagwebhub.com/public_html/api || exit
+          cd /home/u320330365/domains/hashtagwebhub.com/public_html/api || exit
 
           echo "📂 Current directory:"
           pwd
 
           # Fix Git safe directory issue
-          git config --global --add safe.directory /domains/hashtagwebhub.com/public_html/api
+          git config --global --add safe.directory /home/u320330365/domains/hashtagwebhub.com/public_html/api
 
           echo "🧹 Cleaning old changes..."
           git reset --hard
