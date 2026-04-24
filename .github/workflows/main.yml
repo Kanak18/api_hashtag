@@ -1,0 +1,44 @@
+name: Deploy PHP App to Production (main api)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ vars.PRODUCTION_HOST }}
+        username: ${{ vars.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        port: 65002
+        script: |
+          echo "🚀 Starting deployment..."
+
+          cd /home/u320330365/domains/hashtagwebhub.com/public_html/api || exit
+
+          echo "📂 Current directory:"
+          pwd
+
+          # Fix Git safe directory issue
+          git config --global --add safe.directory /home/u320330365/domains/hashtagwebhub.com/public_html/api
+
+          echo "🧹 Cleaning old changes..."
+          git reset --hard
+          git clean -fd
+
+          echo "⬇️ Pulling latest code..."
+          git pull origin main
+
+          echo "🔐 Setting permissions..."
+          chmod -R 755 .
+
+          echo "✅ Deployment completed!"
